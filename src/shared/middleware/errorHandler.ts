@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { BadRequestError } from "../errors/BadRequestError";
+import { ZodError } from "zod";
 export const errorHandler = (
   err: Error,
   req: Request,
@@ -41,6 +42,14 @@ export const errorHandler = (
       .status(409)
       .json({ success: false, message: "Unique constraint failed" });
     return;
+  }
+
+  if(err instanceof ZodError){
+    return res.status(400).json({
+      success: false,
+      message: "Validation failed",
+      errors: err.issues
+    });
   }
 
   console.log(err);
