@@ -1,0 +1,159 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+
+model Workspace {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members     WorkspaceMember[]
+  tickets     Ticket[]
+  activities  ActivityLog[]
+  invites WorkspaceInvite[]
+}
+
+model User {
+  id          String   @id @default(cuid())
+  name        String?
+  email       String   @unique
+  password    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  memberships WorkspaceMember[]
+  ticketsAssigned Ticket[] @relation("AssignedTickets")
+  ticketsCreated Ticket[] @relation("TicketCreatedBy")
+  comments    TicketComment[]
+  activities  ActivityLog[]
+}
+
+
+model WorkspaceMember {
+  id          String   @id @default(cuid())
+  userId      String
+  workspaceId String
+
+  role        Role     @default(AGENT)
+
+  createdAt   DateTime @default(now())
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workspaceId])
+}
+
+
+enum Role {
+  OWNER
+  ADMIN
+  AGENT
+  VIEWER
+}
+
+
+model Ticket {
+  id            String      @id @default(cuid())
+
+  title         String
+  description   String?
+
+  status        TicketStatus @default(OPEN)
+  priority      TicketPriority @default(MEDIUM)
+  category      String?
+
+  workspaceId   String
+
+  createdById   String?
+  assignedToId  String?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  workspace     Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  createdBy User? @relation("TicketCreatedBy", fields: [createdById], references: [id])
+  assignedTo    User? @relation("AssignedTickets", fields: [assignedToId], references: [id])
+
+  comments      TicketComment[]
+  activities    ActivityLog[]
+}
+
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+
+model TicketComment {
+  id          String   @id @default(cuid())
+
+  message     String
+
+  ticketId    String
+  userId      String
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  ticket      Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+
+model ActivityLog {
+  id          String   @id @default(cuid())
+
+  action      String   // e.g. "TICKET_CREATED", "STATUS_CHANGED"
+  metadata    Json?
+
+  workspaceId String
+  userId      String?
+  ticketId    String?
+
+  createdAt   DateTime @default(now())
+
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User?     @relation(fields: [userId], references: [id])
+  ticket      Ticket?   @relation(fields: [ticketId], references: [id])
+}
+
+
+model WorkspaceInvite {
+  id          String   @id @default(cuid())
+
+  email       String
+  token       String   @unique
+
+  role        Role     @default(AGENT)
+
+  workspaceId String
+
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
