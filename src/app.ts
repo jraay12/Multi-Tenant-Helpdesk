@@ -1,15 +1,20 @@
 import express from "express";
 import { errorHandler } from "./shared/middleware/errorHandler";
 import userRoutes from "./modules/user/user.routes";
-import { userController, workspaceController } from "./container";
+import {
+  userController,
+  workspaceController,
+  ticketController,
+} from "./container";
 import workspaceRoutes from "./modules/workspace/workspace.routes";
+import ticketRoute from "./modules/ticket/ticket.routes";
 const app = express();
 
 app.use(express.json());
 
 app.use("/api/v1/users", userRoutes(userController));
 app.use("/api/v1/workspace", workspaceRoutes(workspaceController));
-
+app.use("/api/v1/ticket", ticketRoute(ticketController));
 
 app.use(errorHandler);
 
