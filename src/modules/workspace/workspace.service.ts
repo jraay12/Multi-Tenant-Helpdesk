@@ -67,4 +67,25 @@ export class WorkspaceService {
       role: member.role,
     };
   }
+
+  async switchWorkspace(userId: string, workspaceId: string) {
+    const workspace = await this.workspaceRepo.findById(workspaceId);
+    if (!workspace) throw new NotFoundError("Workspace not found");
+
+    const member = await this.workspaceRepo.findMember(userId, workspaceId);
+
+    if (!member)
+      throw new ForbbidenError(
+        "FORBIDDEN: You don't have access to this workspace",
+      );
+
+    return {
+      workspace: {
+        id: workspace.id,
+        name: workspace.name,
+        slug: workspace.slug,
+      },
+      role: member.role,
+    };
+  }
 }
