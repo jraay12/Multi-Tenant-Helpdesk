@@ -63,4 +63,33 @@ export class TicketService {
       workspaceId
     );
   }
+
+  async getTicketById(
+    userId: string,
+    workspaceId: string,
+    ticketId: string
+  ) {
+    const member = await this.workspaceRepo.findMember(
+      userId,
+      workspaceId
+    );
+
+    if (!member) {
+      throw new ForbbidenError("Unauthorized workspace access");
+    }
+
+    const ticket = await this.ticketRepo.findById(
+      ticketId
+    );
+
+    if (!ticket) {
+      throw new NotFoundError("Ticket not found");
+    }
+
+    if (ticket.workspaceId !== workspaceId) {
+      throw new ForbbidenError("Unauthorized ticket access");
+    }
+
+    return ticket;
+  }
 }

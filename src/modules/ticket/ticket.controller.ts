@@ -38,4 +38,21 @@ export class TicketController {
       next(err);
     }
   };
+  
+  getTicketById = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const params = req.params as {ticketId: string}
+      const ticket = await this.ticketService.getTicketById(
+        req.user!.id,
+        req.workspaceId!,
+        params.ticketId
+      );
+
+      return res.status(200).json({
+        data: ticket,
+      });
+    } catch (err: any) {
+      next(err);
+    }
+  };
 }
