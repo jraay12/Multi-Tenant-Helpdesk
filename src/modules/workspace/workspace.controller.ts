@@ -25,4 +25,15 @@ export class WorkspaceController {
       next(error);
     }
   };
+
+  getWorkspaceById = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user!.id;
+      const {workspace_id} = req.params as {workspace_id: string}
+      const result = await this.workspaceService.getWorkspaceById(userId, workspace_id);
+      res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
 }
