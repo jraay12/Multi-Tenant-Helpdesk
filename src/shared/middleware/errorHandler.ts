@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { BadRequestError } from "../errors/BadRequestError";
 import { ZodError } from "zod";
+import { UnAuthorized } from "../errors/UnAuthorized";
 export const errorHandler = (
   err: Error,
   req: Request,
@@ -19,11 +20,11 @@ export const errorHandler = (
   //   });
   // }
 
-  // if (err instanceof UnAuthorizedError) {
-  //   return res.status(401).json({
-  //     error: err.message,
-  //   });
-  // }
+  if (err instanceof UnAuthorized) {
+    return res.status(401).json({
+      error: err.message,
+    });
+  }
 
   // if (err instanceof ConflictError){
   //   return res.status(409).json({
