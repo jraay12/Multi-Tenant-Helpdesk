@@ -1,9 +1,10 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, TicketStatus } from "@prisma/client";
 import { WorkspaceRepository } from "../workspace/workspace.repository";
 import { TicketRepository } from "./ticket.repository";
 import { CreateTicketDTO } from "./ticket.type";
 import { ForbbidenError } from "../../shared/errors/ForbiddenError";
 import { NotFoundError } from "../../shared/errors/NotFoundError";
+import { BadRequestError } from "../../shared/errors/BadRequestError";
 
 export class TicketService {
   constructor(
@@ -91,5 +92,37 @@ export class TicketService {
     }
 
     return ticket;
+  }
+
+  async updateTicketStatus(
+    userId: string,
+    workspaceId: string,
+    ticketId: string,
+    status: TicketStatus
+  ) {
+    // 1. Validate workspace membership
+    const member = await this.workspaceRepo.findMember(
+      userId,
+      workspaceId
+    );
+
+    if (!member) {
+      throw new Error("Unauthorized workspace access");
+    }
+
+    // 2. Validate ticket exists inside workspace
+    const ticket = await this.ticketRepo.findById(ticketId);
+
+    if (!ticket || ticket.workspaceId !== workspaceId) {
+      throw new NotFoundError("Ticket not found");
+    }
+
+    // 3. Optional: prevent invalid transitions (SaaS rule)
+    if (ticket.status === "CLOSED") {
+      throw new BadRequestError("Cannot update a closed ticket");
+    }
+
+    // 4. Update status
+    return this.ticketRepo.statusUpdate(ticketId, workspaceId, status);
   }
 }

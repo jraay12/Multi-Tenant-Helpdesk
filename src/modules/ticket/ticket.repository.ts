@@ -2,6 +2,7 @@ import {
   Prisma,
   PrismaClient as PrismaClientType,
   Ticket,
+  TicketStatus
 } from "@prisma/client";
 
 type PrismaTx = Prisma.TransactionClient;
@@ -10,7 +11,6 @@ export class TicketRepository {
   constructor(private prisma: PrismaClientType) {}
 
   async save(data: Prisma.TicketCreateInput, tx?: PrismaTx): Promise<Ticket> {
-
     const client = tx ?? this.prisma;
     return await client.ticket.create({
       data,
@@ -28,11 +28,24 @@ export class TicketRepository {
   async findManyByWorkspace(workspaceId: string): Promise<Ticket[]> {
     return await this.prisma.ticket.findMany({
       where: {
-        workspaceId
+        workspaceId,
       },
       orderBy: {
-        createdAt: "desc"
-      }
-    })
+        createdAt: "desc",
+      },
+    });
+  }
+
+  async statusUpdate(ticketId: string, workspaceId: string, status: TicketStatus) {
+    return await this.prisma.ticket.update({
+      where: {
+        id: ticketId,
+        workspaceId
+      },
+      data: {
+        status,
+        updatedAt: new Date()
+      },
+    });
   }
 }

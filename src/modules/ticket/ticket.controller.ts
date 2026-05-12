@@ -1,5 +1,6 @@
+import { TicketStatus } from "@prisma/client";
 import { TicketService } from "./ticket.service";
-import { CreateTicketSchema } from "./ticket.validation";
+import { CreateTicketSchema, UpdateStatusSchema } from "./ticket.validation";
 import { Request, Response, NextFunction } from "express";
 
 export class TicketController {
@@ -53,6 +54,32 @@ export class TicketController {
       });
     } catch (err: any) {
       next(err);
+    }
+  };
+
+  updateStatus = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user!.id;
+      const workspaceId = req.workspaceId!;
+      const {ticketId} = req.params as {ticketId: string};
+
+      // validate request body
+      const { status } = UpdateStatusSchema.parse(req.body);
+
+      const updatedTicket =
+        await this.ticketService.updateTicketStatus(
+          userId,
+          workspaceId,
+          ticketId,
+          status as TicketStatus
+        );
+
+      return res.status(200).json({
+        message: "Ticket status updated successfully",
+        data: updatedTicket,
+      });
+    } catch (err: any) {
+      next(err)
     }
   };
 }

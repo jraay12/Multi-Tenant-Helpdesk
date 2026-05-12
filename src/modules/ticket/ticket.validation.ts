@@ -17,3 +17,7 @@ export const CreateTicketSchema = z.object({
     .max(1000, "Description too long")
     .optional(),
 });
+
+export const UpdateStatusSchema = z.object({
+  status: z.enum(["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"]),
+});
