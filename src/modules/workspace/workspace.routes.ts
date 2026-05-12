@@ -6,6 +6,8 @@ const workspaceRoutes = (workspaceController: WorkspaceController): Router => {
 
   routes.post("/", mockAuth, workspaceController.createWorkspace)
   routes.get("/", mockAuth, workspaceController.getMyWorkspace)
+  routes.get("/:workspace_id", mockAuth, workspaceController.getWorkspaceById)
+
 
   
   return routes
