@@ -51,4 +51,23 @@ export class WorkspaceRepository {
       data,
     });
   }
+
+  async findByUserId(userId: string): Promise<Workspace[]> {
+    return this.prisma.workspace.findMany({
+      where: {
+        members : {
+          some: {
+            userId
+          }
+        }
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    })
+  }
 }
