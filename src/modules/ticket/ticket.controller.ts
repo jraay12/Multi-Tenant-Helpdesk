@@ -20,7 +20,22 @@ export class TicketController {
         data: ticket,
       });
     } catch (err: any) {
-      next(err)
+      next(err);
+    }
+  };
+
+  getTickets = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const ticket = await this.ticketService.getTickets(
+        req.user!.id,
+        req.workspaceId!,
+      );
+
+      return res.status(200).json({
+        data: ticket,
+      });
+    } catch (err: any) {
+      next(err);
     }
   };
 }

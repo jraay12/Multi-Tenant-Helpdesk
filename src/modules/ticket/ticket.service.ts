@@ -20,7 +20,7 @@ export class TicketService {
 
     const workspace = await this.workspaceRepo.findById(workspaceId)
     if(!workspace) throw new NotFoundError("Workspace not found")
-      
+
     // validate membership
     const member = await this.workspaceRepo.findMember(userId, workspaceId);
 
@@ -44,5 +44,23 @@ export class TicketService {
         }
       }
     });
+  }
+
+  async getTickets(
+    userId: string,
+    workspaceId: string
+  ) {
+    const member = await this.workspaceRepo.findMember(
+      userId,
+      workspaceId
+    );
+
+    if (!member) {
+      throw new ForbbidenError("Unauthorized workspace access");
+    }
+
+    return this.ticketRepo.findManyByWorkspace(
+      workspaceId
+    );
   }
 }

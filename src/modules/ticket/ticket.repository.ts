@@ -24,4 +24,15 @@ export class TicketRepository {
       },
     });
   }
+
+  async findManyByWorkspace(workspaceId: string): Promise<Ticket[]> {
+    return await this.prisma.ticket.findMany({
+      where: {
+        workspaceId
+      },
+      orderBy: {
+        createdAt: "desc"
+      }
+    })
+  }
 }

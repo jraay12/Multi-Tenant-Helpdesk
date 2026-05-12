@@ -7,7 +7,7 @@ const ticketRoute = (ticketController: TicketController): Router => {
   const routes = Router()
 
   routes.post("/", mockAuth, workspaceContext, ticketController.createTicket)
-  
+  routes.get("/", mockAuth, workspaceContext, ticketController.getTickets)
   return routes
 
 }
