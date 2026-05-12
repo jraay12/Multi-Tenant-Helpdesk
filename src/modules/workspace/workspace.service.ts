@@ -2,6 +2,8 @@ import { PrismaClient } from "@prisma/client";
 import { WorkspaceRepository } from "./workspace.repository";
 import { generateSlug } from "../../shared/utils/generateSlug";
 import { CreateWorkspaceDTO } from "./workspace.types";
+import { ForbbidenError } from "../../shared/errors/ForbiddenError";
+import { NotFoundError } from "../../shared/errors/NotFoundError";
 
 export class WorkspaceService {
   constructor(
@@ -46,5 +48,23 @@ export class WorkspaceService {
     const workspaces = await this.workspaceRepo.findByUserId(userId);
 
     return workspaces;
+  }
+
+  async getWorkspaceById(userId: string, workspaceId: string) {
+    const member = await this.workspaceRepo.findMember(userId, workspaceId);
+
+    if (!member)
+      throw new ForbbidenError(
+        "FORBIDDEN: You don't have access to this workspace",
+      );
+
+    const workspace = await this.workspaceRepo.findById(workspaceId);
+
+    if (!workspace) throw new NotFoundError("Workspace not found");
+
+    return {
+      workspace,
+      role: member.role,
+    };
   }
 }
