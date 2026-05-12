@@ -41,4 +41,10 @@ export class WorkspaceService {
       return workspace;
     });
   }
+
+  async getMyWorkspaces(userId: string) {
+    const workspaces = await this.workspaceRepo.findByUserId(userId);
+
+    return workspaces;
+  }
 }
