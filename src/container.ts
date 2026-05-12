@@ -8,7 +8,7 @@ import { WorkspaceService } from "./modules/workspace/workspace.service";
 import { prisma } from "./lib/prisma";
 
 // repository
-const userRepo = new UserRepository(prisma)
+export const userRepo = new UserRepository(prisma)
 const workspaceRepo = new WorkspaceRepository(prisma)
 
 // services
