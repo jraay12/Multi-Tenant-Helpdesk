@@ -1,7 +1,7 @@
 import { PrismaClient, TicketStatus } from "@prisma/client";
 import { WorkspaceRepository } from "../workspace/workspace.repository";
 import { TicketRepository } from "./ticket.repository";
-import { CreateTicketDTO } from "./ticket.type";
+import { CreateCommentDTO, CreateTicketDTO } from "./ticket.type";
 import { ForbbidenError } from "../../shared/errors/ForbiddenError";
 import { NotFoundError } from "../../shared/errors/NotFoundError";
 import { BadRequestError } from "../../shared/errors/BadRequestError";
@@ -20,9 +20,8 @@ export class TicketService {
     workspaceId: string,
     data: CreateTicketDTO,
   ) {
-
-    const workspace = await this.workspaceRepo.findById(workspaceId)
-    if(!workspace) throw new NotFoundError("Workspace not found")
+    const workspace = await this.workspaceRepo.findById(workspaceId);
+    if (!workspace) throw new NotFoundError("Workspace not found");
 
     // validate membership
     const member = await this.workspaceRepo.findMember(userId, workspaceId);
@@ -38,52 +37,35 @@ export class TicketService {
       priority: data.priority ?? "MEDIUM",
       workspace: {
         connect: {
-          id: workspaceId
-        }
+          id: workspaceId,
+        },
       },
       createdBy: {
         connect: {
-          id: userId
-        }
-      }
+          id: userId,
+        },
+      },
     });
   }
 
-  async getTickets(
-    userId: string,
-    workspaceId: string
-  ) {
-    const member = await this.workspaceRepo.findMember(
-      userId,
-      workspaceId
-    );
+  async getTickets(userId: string, workspaceId: string) {
+    const member = await this.workspaceRepo.findMember(userId, workspaceId);
 
     if (!member) {
       throw new ForbbidenError("Unauthorized workspace access");
     }
 
-    return this.ticketRepo.findManyByWorkspace(
-      workspaceId
-    );
+    return this.ticketRepo.findManyByWorkspace(workspaceId);
   }
 
-  async getTicketById(
-    userId: string,
-    workspaceId: string,
-    ticketId: string
-  ) {
-    const member = await this.workspaceRepo.findMember(
-      userId,
-      workspaceId
-    );
+  async getTicketById(userId: string, workspaceId: string, ticketId: string) {
+    const member = await this.workspaceRepo.findMember(userId, workspaceId);
 
     if (!member) {
       throw new ForbbidenError("Unauthorized workspace access");
     }
 
-    const ticket = await this.ticketRepo.findById(
-      ticketId
-    );
+    const ticket = await this.ticketRepo.findById(ticketId);
 
     if (!ticket) {
       throw new NotFoundError("Ticket not found");
@@ -100,13 +82,10 @@ export class TicketService {
     userId: string,
     workspaceId: string,
     ticketId: string,
-    status: TicketStatus
+    status: TicketStatus,
   ) {
     // 1. Validate workspace membership
-    const member = await this.workspaceRepo.findMember(
-      userId,
-      workspaceId
-    );
+    const member = await this.workspaceRepo.findMember(userId, workspaceId);
 
     if (!member) {
       throw new Error("Unauthorized workspace access");
@@ -128,16 +107,53 @@ export class TicketService {
     return this.ticketRepo.statusUpdate(ticketId, workspaceId, status);
   }
 
-  async assignTickets(assigneeId: string, workspaceId: string, ticketId: string) {
-    const userExist = await this.userRepo.findById(assigneeId)
-    if(!userExist) throw new NotFoundError("User not found")
+  async assignTickets(
+    assigneeId: string,
+    workspaceId: string,
+    ticketId: string,
+  ) {
+    const userExist = await this.userRepo.findById(assigneeId);
+    if (!userExist) throw new NotFoundError("User not found");
 
-    const member = await this.workspaceRepo.findMember(assigneeId, workspaceId)
-    if(!member) throw new ForbbidenError("Unauthorized workspace access")
+    const member = await this.workspaceRepo.findMember(assigneeId, workspaceId);
+    if (!member) throw new ForbbidenError("Unauthorized workspace access");
 
-    const ticketExist = await this.ticketRepo.findById(ticketId)
-    if(!ticketExist) throw new NotFoundError("Ticket not found")
+    const ticketExist = await this.ticketRepo.findById(ticketId);
+    if (!ticketExist) throw new NotFoundError("Ticket not found");
 
-    return await this.ticketRepo.assignTask(assigneeId, ticketId)
+    return await this.ticketRepo.assignTask(assigneeId, ticketId);
+  }
+
+  async createComment(
+    ticketId: string,
+    userId: string,
+    workspaceId: string,
+    data: CreateCommentDTO,
+  ) {
+    const ticketExist = await this.ticketRepo.findByIdAndWorkspace(ticketId, workspaceId);
+    if (!ticketExist) throw new NotFoundError("Ticket not found");
+
+    const member = await this.workspaceRepo.findMember(
+      userId,
+      ticketExist.workspaceId,
+    );
+
+    if (!member) {
+      throw new ForbbidenError("Unauthorized workspace access");
+    }
+
+    return await this.ticketRepo.createComment({
+      message: data.message,
+      ticket: {
+        connect: {
+          id: ticketId
+        }
+      },
+      user: {
+        connect: {
+          id: userId
+        }
+      }
+    })
   }
 }

@@ -21,3 +21,8 @@ export const CreateTicketSchema = z.object({
 export const UpdateStatusSchema = z.object({
   status: z.enum(["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"]),
 });
+
+
+export const CreateCommentSchema = z.object({
+  message: z.string().min(1).max(1000)
+})

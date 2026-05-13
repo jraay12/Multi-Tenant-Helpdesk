@@ -2,6 +2,7 @@ import {
   Prisma,
   PrismaClient as PrismaClientType,
   Ticket,
+  TicketComment,
   TicketStatus,
 } from "@prisma/client";
 
@@ -62,5 +63,20 @@ export class TicketRepository {
         assignedToId: assigneeId,
       },
     });
+  }
+
+  async findByIdAndWorkspace(ticketId: string, workspaceId: string) {
+    return await this.prisma.ticket.findFirst({
+      where: {
+        id: ticketId,
+        workspaceId,
+      },
+    });
+  }
+
+  async createComment(data: Prisma.TicketCommentCreateInput): Promise<TicketComment>  {
+    return await this.prisma.ticketComment.create({
+      data
+    })
   }
 }

@@ -39,14 +39,14 @@ export class TicketController {
       next(err);
     }
   };
-  
+
   getTicketById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const params = req.params as {ticketId: string}
+      const params = req.params as { ticketId: string };
       const ticket = await this.ticketService.getTicketById(
         req.user!.id,
         req.workspaceId!,
-        params.ticketId
+        params.ticketId,
       );
 
       return res.status(200).json({
@@ -61,46 +61,66 @@ export class TicketController {
     try {
       const userId = req.user!.id;
       const workspaceId = req.workspaceId!;
-      const {ticketId} = req.params as {ticketId: string};
+      const { ticketId } = req.params as { ticketId: string };
 
       // validate request body
       const { status } = UpdateStatusSchema.parse(req.body);
 
-      const updatedTicket =
-        await this.ticketService.updateTicketStatus(
-          userId,
-          workspaceId,
-          ticketId,
-          status as TicketStatus
-        );
+      const updatedTicket = await this.ticketService.updateTicketStatus(
+        userId,
+        workspaceId,
+        ticketId,
+        status as TicketStatus,
+      );
 
       return res.status(200).json({
         message: "Ticket status updated successfully",
         data: updatedTicket,
       });
     } catch (err: any) {
-      next(err)
+      next(err);
     }
   };
 
   assignTicket = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const workspaceId = req.workspaceId!;
-      const {ticketId} = req.params as {ticketId: string};
-      const {assignedId} = req.body as {assignedId: string}
-      const assignTicket =
-        await this.ticketService.assignTickets(
-          assignedId,
-          workspaceId,
-          ticketId,
-        );
+      const { ticketId } = req.params as { ticketId: string };
+      const { assignedId } = req.body as { assignedId: string };
+      const assignTicket = await this.ticketService.assignTickets(
+        assignedId,
+        workspaceId,
+        ticketId,
+      );
 
       return res.status(200).json({
         message: "Ticket assign successfully",
         data: assignTicket,
       });
     } catch (err: any) {
-      next(err)
+      next(err);
+    }
+  };
+
+  createComment = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user!.id;
+      const workspaceId = req.workspaceId!;
+      const { ticketId } = req.params as { ticketId: string };
+      const { message } = req.body as { message: string };
+      const ticketComment = await this.ticketService.createComment(
+        ticketId,
+        userId,
+        workspaceId,
+        { message },
+      );
+
+      return res.status(200).json({
+        message: "Ticket comment successfully added",
+        data: ticketComment,
+      });
+    } catch (err: any) {
+      next(err);
     }
   };
 }
