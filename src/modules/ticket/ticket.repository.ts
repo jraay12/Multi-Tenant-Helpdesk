@@ -2,7 +2,7 @@ import {
   Prisma,
   PrismaClient as PrismaClientType,
   Ticket,
-  TicketStatus
+  TicketStatus,
 } from "@prisma/client";
 
 type PrismaTx = Prisma.TransactionClient;
@@ -36,15 +36,30 @@ export class TicketRepository {
     });
   }
 
-  async statusUpdate(ticketId: string, workspaceId: string, status: TicketStatus) {
+  async statusUpdate(
+    ticketId: string,
+    workspaceId: string,
+    status: TicketStatus,
+  ) {
     return await this.prisma.ticket.update({
       where: {
         id: ticketId,
-        workspaceId
+        workspaceId,
       },
       data: {
         status,
-        updatedAt: new Date()
+        updatedAt: new Date(),
+      },
+    });
+  }
+
+  async assignTask(assigneeId: string, ticketId: string) {
+    return await this.prisma.ticket.update({
+      where: {
+        id: ticketId,
+      },
+      data: {
+        assignedToId: assigneeId,
       },
     });
   }

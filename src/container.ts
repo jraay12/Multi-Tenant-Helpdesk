@@ -16,7 +16,7 @@ const ticketRepo = new TicketRepository(prisma)
 // services
 const userService = new UserService(userRepo)
 const workspaceService = new WorkspaceService(workspaceRepo, prisma)
-const ticketService = new TicketService(ticketRepo, workspaceRepo, prisma)
+const ticketService = new TicketService(ticketRepo, workspaceRepo, userRepo, prisma)
 
 // controller
 export const userController = new UserController(userService)

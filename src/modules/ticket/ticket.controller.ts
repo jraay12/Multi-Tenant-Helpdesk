@@ -82,4 +82,25 @@ export class TicketController {
       next(err)
     }
   };
+
+  assignTicket = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const workspaceId = req.workspaceId!;
+      const {ticketId} = req.params as {ticketId: string};
+      const {assignedId} = req.body as {assignedId: string}
+      const assignTicket =
+        await this.ticketService.assignTickets(
+          assignedId,
+          workspaceId,
+          ticketId,
+        );
+
+      return res.status(200).json({
+        message: "Ticket assign successfully",
+        data: assignTicket,
+      });
+    } catch (err: any) {
+      next(err)
+    }
+  };
 }

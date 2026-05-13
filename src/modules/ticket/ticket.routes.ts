@@ -10,7 +10,7 @@ const ticketRoute = (ticketController: TicketController): Router => {
   routes.get("/", mockAuth, workspaceContext, ticketController.getTickets)
   routes.get("/:ticketId", mockAuth, workspaceContext, ticketController.getTicketById)
   routes.patch("/:ticketId/status", mockAuth, workspaceContext, ticketController.updateStatus)
-
+  routes.patch("/:ticketId/assign", mockAuth, workspaceContext, ticketController.assignTicket)
 
   return routes
 

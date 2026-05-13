@@ -5,11 +5,13 @@ import { CreateTicketDTO } from "./ticket.type";
 import { ForbbidenError } from "../../shared/errors/ForbiddenError";
 import { NotFoundError } from "../../shared/errors/NotFoundError";
 import { BadRequestError } from "../../shared/errors/BadRequestError";
+import { UserRepository } from "../user/user.repository";
 
 export class TicketService {
   constructor(
     private ticketRepo: TicketRepository,
     private workspaceRepo: WorkspaceRepository,
+    private userRepo: UserRepository,
     private prisma: PrismaClient,
   ) {}
 
@@ -124,5 +126,18 @@ export class TicketService {
 
     // 4. Update status
     return this.ticketRepo.statusUpdate(ticketId, workspaceId, status);
+  }
+
+  async assignTickets(assigneeId: string, workspaceId: string, ticketId: string) {
+    const userExist = await this.userRepo.findById(assigneeId)
+    if(!userExist) throw new NotFoundError("User not found")
+
+    const member = await this.workspaceRepo.findMember(assigneeId, workspaceId)
+    if(!member) throw new ForbbidenError("Unauthorized workspace access")
+
+    const ticketExist = await this.ticketRepo.findById(ticketId)
+    if(!ticketExist) throw new NotFoundError("Ticket not found")
+
+    return await this.ticketRepo.assignTask(assigneeId, ticketId)
   }
 }
