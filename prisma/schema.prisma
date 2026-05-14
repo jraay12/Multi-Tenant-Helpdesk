@@ -15,6 +15,7 @@ datasource db {
 model Workspace {
   id          String   @id @default(cuid())
   name        String
+  description String?
   slug        String   @unique
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

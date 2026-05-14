@@ -6,4 +6,11 @@ export const CreateWorkspaceSchema = z.object({
     .min(2, "Workspace name must be at least 2 characters")
     .max(50, "Workspace name must be at most 50 characters")
     .trim(),
+
+  description: z
+    .string()
+    .min(2, "Workspace description must be at least 2 characters")
+    .max(100, "Workspace description must be at most 50 characters")
+    .trim()
+    .optional()
 });

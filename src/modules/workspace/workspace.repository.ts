@@ -65,8 +65,14 @@ export class WorkspaceRepository {
         id: true,
         name: true,
         slug: true,
+        description: true,
         createdAt: true,
-        updatedAt: true
+        updatedAt: true,
+        _count: {
+          select: {
+            members: true
+          }
+        }
       }
     })
   }
