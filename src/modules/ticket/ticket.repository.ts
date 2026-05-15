@@ -31,6 +31,13 @@ export class TicketRepository {
       where: {
         workspaceId,
       },
+      include: {
+        assignedTo: {
+          select: {
+            name: true
+          }
+        }
+      },
       orderBy: {
         createdAt: "desc",
       },
