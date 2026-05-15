@@ -62,4 +62,18 @@ export class WorkspaceController {
       next(error);
     }
   };
+
+  members = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const workspaceId = req.workspaceId!;
+      const userId = req.user!.id;
+      const result = await this.workspaceService.members(userId, workspaceId);
+      return res.json({
+        message: "Fetch workspace members",
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
 }

@@ -29,8 +29,8 @@ export class WorkspaceRepository {
     });
   }
 
-  async findBySlug(slug: string, tx?: PrismaTx,): Promise<Workspace | null> {
-     const client = tx ?? this.prisma;
+  async findBySlug(slug: string, tx?: PrismaTx): Promise<Workspace | null> {
+    const client = tx ?? this.prisma;
     return await client.workspace.findUnique({
       where: {
         slug,
@@ -47,19 +47,19 @@ export class WorkspaceRepository {
     tx?: PrismaTx,
   ): Promise<WorkspaceMember> {
     const client = tx ?? this.prisma;
-    return client.workspaceMember.create({
+    return await client.workspaceMember.create({
       data,
     });
   }
 
   async findByUserId(userId: string): Promise<Workspace[]> {
-    return this.prisma.workspace.findMany({
+    return await this.prisma.workspace.findMany({
       where: {
-        members : {
+        members: {
           some: {
-            userId
-          }
-        }
+            userId,
+          },
+        },
       },
       select: {
         id: true,
@@ -70,15 +70,15 @@ export class WorkspaceRepository {
         updatedAt: true,
         _count: {
           select: {
-            members: true
-          }
-        }
-      }
-    })
+            members: true,
+          },
+        },
+      },
+    });
   }
 
   async findMember(userId: string, workspaceId: string) {
-    return this.prisma.workspaceMember.findUnique({
+    return await this.prisma.workspaceMember.findUnique({
       where: {
         userId_workspaceId: {
           userId,
@@ -88,4 +88,19 @@ export class WorkspaceRepository {
     });
   }
 
+  async findAllMember(workspaceId: string) {
+    return await this.prisma.workspaceMember.findMany({
+      where: {
+        workspaceId,
+      },
+      include: {
+        user: {
+          select: {
+            name: true,
+            email: true
+          }
+        }
+      }
+    });
+  }
 }
