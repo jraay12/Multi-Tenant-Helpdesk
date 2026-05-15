@@ -23,6 +23,13 @@ export class TicketRepository {
       where: {
         id,
       },
+      include: {
+        assignedTo: {
+          select: {
+            name: true
+          }
+        }
+      },
     });
   }
 
