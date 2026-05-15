@@ -71,6 +71,7 @@ model Ticket {
 
   title         String
   description   String?
+  customer_name String
 
   status        TicketStatus @default(OPEN)
   priority      TicketPriority @default(MEDIUM)

@@ -35,6 +35,7 @@ export class TicketService {
       description: data.description,
       category: data.category,
       priority: data.priority ?? "MEDIUM",
+      customer_name: data.customer_name,
       workspace: {
         connect: {
           id: workspaceId,
