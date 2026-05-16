@@ -131,7 +131,10 @@ export class TicketService {
     workspaceId: string,
     data: CreateCommentDTO,
   ) {
-    const ticketExist = await this.ticketRepo.findByIdAndWorkspace(ticketId, workspaceId);
+    const ticketExist = await this.ticketRepo.findByIdAndWorkspace(
+      ticketId,
+      workspaceId,
+    );
     if (!ticketExist) throw new NotFoundError("Ticket not found");
 
     const member = await this.workspaceRepo.findMember(
@@ -147,14 +150,27 @@ export class TicketService {
       message: data.message,
       ticket: {
         connect: {
-          id: ticketId
-        }
+          id: ticketId,
+        },
       },
       user: {
         connect: {
-          id: userId
-        }
-      }
-    })
+          id: userId,
+        },
+      },
+    });
+  }
+
+  async dashboardStatistics(userId: string, workspaceId: string) {
+    const workspace = await this.workspaceRepo.findById(workspaceId);
+    if (!workspace) throw new NotFoundError("Workspace not found");
+
+    const member = await this.workspaceRepo.findMember(userId, workspaceId);
+
+    if (!member) {
+      throw new ForbbidenError("Unauthorized workspace access");
+    }
+
+    return await this.ticketRepo.ticketStatistics(workspaceId);
   }
 }
