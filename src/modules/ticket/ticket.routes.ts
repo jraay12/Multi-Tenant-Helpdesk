@@ -8,10 +8,12 @@ const ticketRoute = (ticketController: TicketController): Router => {
 
   routes.post("/", mockAuth, workspaceContext, ticketController.createTicket)
   routes.get("/", mockAuth, workspaceContext, ticketController.getTickets)
+  routes.get("/stats", mockAuth, workspaceContext, ticketController.dashboardStatistics)
   routes.get("/:ticketId", mockAuth, workspaceContext, ticketController.getTicketById)
   routes.patch("/:ticketId/status", mockAuth, workspaceContext, ticketController.updateStatus)
   routes.patch("/:ticketId/assign", mockAuth, workspaceContext, ticketController.assignTicket)
   routes.post("/:ticketId/comment", mockAuth, workspaceContext, ticketController.createComment)
+  
 
   return routes
 

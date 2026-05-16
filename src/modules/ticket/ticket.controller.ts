@@ -123,4 +123,25 @@ export class TicketController {
       next(err);
     }
   };
+
+  dashboardStatistics = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const userId = req.user!.id;
+      const workspaceId = req.workspaceId!;
+      const stats = await this.ticketService.dashboardStatistics(
+        userId,
+        workspaceId,
+      );
+
+      return res.status(200).json({
+        data: stats,
+      });
+    } catch (err: any) {
+      next(err);
+    }
+  };
 }
