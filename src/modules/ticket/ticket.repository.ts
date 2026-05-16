@@ -26,9 +26,9 @@ export class TicketRepository {
       include: {
         assignedTo: {
           select: {
-            name: true
-          }
-        }
+            name: true,
+          },
+        },
       },
     });
   }
@@ -41,9 +41,9 @@ export class TicketRepository {
       include: {
         assignedTo: {
           select: {
-            name: true
-          }
-        }
+            name: true,
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
@@ -88,9 +88,91 @@ export class TicketRepository {
     });
   }
 
-  async createComment(data: Prisma.TicketCommentCreateInput): Promise<TicketComment>  {
+  async createComment(
+    data: Prisma.TicketCommentCreateInput,
+  ): Promise<TicketComment> {
     return await this.prisma.ticketComment.create({
-      data
-    })
+      data,
+    });
+  }
+
+  async ticketStatistics(workspaceId: string) {
+    const today = new Date();
+
+    today.setHours(0, 0, 0, 0);
+
+    const weekStart = new Date();
+
+    weekStart.setDate(weekStart.getDate() - 7);
+
+    const [statusCounts, openToday, inProgressToday, resolvedThisWeek] =
+      await Promise.all([
+        this.prisma.ticket.groupBy({
+          by: ["status"],
+          where: {
+            workspaceId,
+          },
+          _count: {
+            status: true,
+          },
+        }),
+
+        this.prisma.ticket.count({
+          where: {
+            workspaceId,
+            status: "OPEN",
+            createdAt: {
+              gte: today,
+            },
+          },
+        }),
+
+        this.prisma.ticket.count({
+          where: {
+            workspaceId,
+            status: "IN_PROGRESS",
+            createdAt: {
+              gte: today,
+            },
+          },
+        }),
+
+        this.prisma.ticket.count({
+          where: {
+            workspaceId,
+            status: "RESOLVED",
+            updatedAt: {
+              gte: weekStart,
+            },
+          },
+        }),
+      ]);
+
+    const formatted = {
+      OPEN: {
+        total: 0,
+        today: openToday,
+      },
+
+      IN_PROGRESS: {
+        total: 0,
+        today: inProgressToday,
+      },
+
+      RESOLVED: {
+        total: 0,
+        thisWeek: resolvedThisWeek,
+      },
+
+      CLOSED: {
+        total: 0,
+      },
+    };
+
+    statusCounts.forEach((item) => {
+      formatted[item.status].total = item._count.status;
+    });
+
+    return formatted;
   }
 }
