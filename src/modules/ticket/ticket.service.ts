@@ -123,6 +123,11 @@ export class TicketService {
     const ticketExist = await this.ticketRepo.findById(ticketId);
     if (!ticketExist) throw new NotFoundError("Ticket not found");
 
+    // 3. Optional: prevent invalid transitions (SaaS rule)
+    if (ticketExist.status === "CLOSED") {
+      throw new BadRequestError("Cannot update a closed ticket");
+    }
+
     return await this.ticketRepo.assignTask(assigneeId, ticketId);
   }
 
