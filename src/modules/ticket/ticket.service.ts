@@ -1,4 +1,4 @@
-import { PrismaClient, TicketStatus } from "@prisma/client";
+import { PrismaClient, TicketPriority, TicketStatus } from "@prisma/client";
 import { WorkspaceRepository } from "../workspace/workspace.repository";
 import { TicketRepository } from "./ticket.repository";
 import { CreateCommentDTO, CreateTicketDTO } from "./ticket.type";
@@ -192,5 +192,29 @@ export class TicketService {
     }));
 
     return formatted
+  }
+
+  async updatePriority(
+    userId: string,
+    workspaceId: string,
+    ticketId: string,
+    priority: TicketPriority,
+  ) {
+    // 1. Validate workspace membership
+    const member = await this.workspaceRepo.findMember(userId, workspaceId);
+
+    if (!member) {
+      throw new Error("Unauthorized workspace access");
+    }
+
+    // 2. Validate ticket exists inside workspace
+    const ticket = await this.ticketRepo.findById(ticketId);
+
+    if (!ticket || ticket.workspaceId !== workspaceId) {
+      throw new NotFoundError("Ticket not found");
+    }
+
+    // 4. Update status
+    return this.ticketRepo.priorityUpdate(ticketId, workspaceId, priority);
   }
 }

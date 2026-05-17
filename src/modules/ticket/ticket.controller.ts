@@ -1,6 +1,10 @@
-import { TicketStatus } from "@prisma/client";
+import { TicketPriority, TicketStatus } from "@prisma/client";
 import { TicketService } from "./ticket.service";
-import { CreateTicketSchema, UpdateStatusSchema } from "./ticket.validation";
+import {
+  CreateTicketSchema,
+  UpdatePrioritySchema,
+  UpdateStatusSchema,
+} from "./ticket.validation";
 import { Request, Response, NextFunction } from "express";
 
 export class TicketController {
@@ -145,21 +149,39 @@ export class TicketController {
     }
   };
 
-  recentTicket = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  recentTicket = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user!.id;
       const workspaceId = req.workspaceId!;
-      const ticket = await this.ticketService.recentTicket(
-        userId,
-        workspaceId,
-      );
+      const ticket = await this.ticketService.recentTicket(userId, workspaceId);
 
       return res.status(200).json({
         data: ticket,
+      });
+    } catch (err: any) {
+      next(err);
+    }
+  };
+
+  updatePriority = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user!.id;
+      const workspaceId = req.workspaceId!;
+      const { ticketId } = req.params as { ticketId: string };
+
+      // validate request body
+      const { priority } = UpdatePrioritySchema.parse(req.body);
+
+      const updatedPriority = await this.ticketService.updatePriority(
+        userId,
+        workspaceId,
+        ticketId,
+        priority as TicketPriority,
+      );
+
+      return res.status(200).json({
+        message: "Ticket priority updated successfully",
+        data: updatedPriority,
       });
     } catch (err: any) {
       next(err);

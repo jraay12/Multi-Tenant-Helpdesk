@@ -20,3 +20,7 @@ export const UpdateStatusSchema = z.object({
 export const CreateCommentSchema = z.object({
   message: z.string().min(1).max(1000),
 });
+
+export const UpdatePrioritySchema = z.object({
+  priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]),
+});

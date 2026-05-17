@@ -45,6 +45,12 @@ const ticketRoute = (ticketController: TicketController): Router => {
     workspaceContext,
     ticketController.createComment,
   );
+  routes.patch(
+    "/:ticketId/priority",
+    mockAuth,
+    workspaceContext,
+    ticketController.updatePriority,
+  );
 
   return routes;
 };

@@ -3,6 +3,7 @@ import {
   PrismaClient as PrismaClientType,
   Ticket,
   TicketComment,
+  TicketPriority,
   TicketStatus,
 } from "@prisma/client";
 
@@ -199,6 +200,23 @@ export class TicketRepository {
         createdAt: "desc",
       },
       take: 5,
+    });
+  }
+
+  async priorityUpdate(
+    ticketId: string,
+    workspaceId: string,
+    priority: TicketPriority,
+  ) {
+    return await this.prisma.ticket.update({
+      where: {
+        id: ticketId,
+        workspaceId,
+      },
+      data: {
+        priority,
+        updatedAt: new Date(),
+      },
     });
   }
 }
