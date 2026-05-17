@@ -188,6 +188,7 @@ export class TicketRepository {
         customer_name: true,
         createdAt: true,
         priority: true,
+        id: true,
         assignedTo: {
           select: {
             name: true
@@ -197,7 +198,7 @@ export class TicketRepository {
       orderBy: {
         createdAt: "desc",
       },
-      take: 3,
+      take: 5,
     });
   }
 }
