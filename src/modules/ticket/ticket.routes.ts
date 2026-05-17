@@ -1,22 +1,52 @@
-import { Router } from "express"
-import { TicketController } from "./ticket.controller"
-import { mockAuth } from "../../shared/middleware/mockAuth"
-import { workspaceContext } from "../../shared/middleware/workspaceContext"
+import { Router } from "express";
+import { TicketController } from "./ticket.controller";
+import { mockAuth } from "../../shared/middleware/mockAuth";
+import { workspaceContext } from "../../shared/middleware/workspaceContext";
 
 const ticketRoute = (ticketController: TicketController): Router => {
-  const routes = Router()
+  const routes = Router();
 
-  routes.post("/", mockAuth, workspaceContext, ticketController.createTicket)
-  routes.get("/", mockAuth, workspaceContext, ticketController.getTickets)
-  routes.get("/stats", mockAuth, workspaceContext, ticketController.dashboardStatistics)
-  routes.get("/:ticketId", mockAuth, workspaceContext, ticketController.getTicketById)
-  routes.patch("/:ticketId/status", mockAuth, workspaceContext, ticketController.updateStatus)
-  routes.patch("/:ticketId/assign", mockAuth, workspaceContext, ticketController.assignTicket)
-  routes.post("/:ticketId/comment", mockAuth, workspaceContext, ticketController.createComment)
-  
+  routes.post("/", mockAuth, workspaceContext, ticketController.createTicket);
+  routes.get("/", mockAuth, workspaceContext, ticketController.getTickets);
+  routes.get(
+    "/stats",
+    mockAuth,
+    workspaceContext,
+    ticketController.dashboardStatistics,
+  );
+  routes.get(
+    "/recent",
+    mockAuth,
+    workspaceContext,
+    ticketController.recentTicket,
+  );
 
-  return routes
+  routes.get(
+    "/:ticketId",
+    mockAuth,
+    workspaceContext,
+    ticketController.getTicketById,
+  );
+  routes.patch(
+    "/:ticketId/status",
+    mockAuth,
+    workspaceContext,
+    ticketController.updateStatus,
+  );
+  routes.patch(
+    "/:ticketId/assign",
+    mockAuth,
+    workspaceContext,
+    ticketController.assignTicket,
+  );
+  routes.post(
+    "/:ticketId/comment",
+    mockAuth,
+    workspaceContext,
+    ticketController.createComment,
+  );
 
-}
+  return routes;
+};
 
-export default ticketRoute
+export default ticketRoute;

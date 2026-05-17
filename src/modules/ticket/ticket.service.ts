@@ -6,6 +6,7 @@ import { ForbbidenError } from "../../shared/errors/ForbiddenError";
 import { NotFoundError } from "../../shared/errors/NotFoundError";
 import { BadRequestError } from "../../shared/errors/BadRequestError";
 import { UserRepository } from "../user/user.repository";
+import { getTimeAgo } from "../../shared/utils/getMinutesAgo";
 
 export class TicketService {
   constructor(
@@ -172,5 +173,24 @@ export class TicketService {
     }
 
     return await this.ticketRepo.ticketStatistics(workspaceId);
+  }
+
+  async recentTicket(userId: string, workspaceId: string) {
+    const workspace = await this.workspaceRepo.findById(workspaceId);
+    if (!workspace) throw new NotFoundError("Workspace not found");
+
+    const member = await this.workspaceRepo.findMember(userId, workspaceId);
+
+    if (!member) {
+      throw new ForbbidenError("Unauthorized workspace access");
+    }
+    const tickets = await this.ticketRepo.recentTickets(workspaceId);
+
+    const formatted = tickets.map((ticket) => ({
+      ...ticket,
+      timeAgo: getTimeAgo(ticket.createdAt),
+    }));
+
+    return formatted
   }
 }

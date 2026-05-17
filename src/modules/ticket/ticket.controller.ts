@@ -144,4 +144,25 @@ export class TicketController {
       next(err);
     }
   };
+
+  recentTicket = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const userId = req.user!.id;
+      const workspaceId = req.workspaceId!;
+      const ticket = await this.ticketService.recentTicket(
+        userId,
+        workspaceId,
+      );
+
+      return res.status(200).json({
+        data: ticket,
+      });
+    } catch (err: any) {
+      next(err);
+    }
+  };
 }

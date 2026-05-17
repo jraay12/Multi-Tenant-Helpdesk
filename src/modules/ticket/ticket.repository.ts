@@ -175,4 +175,29 @@ export class TicketRepository {
 
     return formatted;
   }
+
+  async recentTickets(workspaceId: string) {
+    return await this.prisma.ticket.findMany({
+      where: {
+        workspaceId,
+      },
+      select: {
+        title: true,
+        status: true,
+        category: true,
+        customer_name: true,
+        createdAt: true,
+        priority: true,
+        assignedTo: {
+          select: {
+            name: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: 3,
+    });
+  }
 }
