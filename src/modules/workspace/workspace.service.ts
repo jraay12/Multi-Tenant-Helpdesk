@@ -27,6 +27,7 @@ export class WorkspaceService {
         {
           name: data.name,
           slug,
+          description: data.description
         },
         tx,
       );
