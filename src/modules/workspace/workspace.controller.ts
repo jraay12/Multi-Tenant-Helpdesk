@@ -7,9 +7,10 @@ export class WorkspaceController {
 
   createWorkspace = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { name } = CreateWorkspaceSchema.parse(req.body);
+      const { name, description } = CreateWorkspaceSchema.parse(req.body);
       const userId = req.user!.id;
       const result = await this.workspaceService.createWorkspace(userId, {
+        description,
         name,
       });
       res.status(201).json(result);

@@ -26,8 +26,9 @@ export class WorkspaceService {
       const workspace = await this.workspaceRepo.save(
         {
           name: data.name,
+          description: data.description,
           slug,
-          description: data.description
+          
         },
         tx,
       );
