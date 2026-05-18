@@ -219,4 +219,25 @@ export class TicketRepository {
       },
     });
   }
+
+  async ticketComment(ticketId: string) {
+    return await this.prisma.ticketComment.findMany({
+      where: {
+        ticketId
+      },
+      include: {
+        ticket: {
+          select: {
+            customer_name: true,
+            description: true
+          }
+        },
+        user: {
+          select: {
+            name: true
+          }
+        }
+      }
+    })
+  }
 }

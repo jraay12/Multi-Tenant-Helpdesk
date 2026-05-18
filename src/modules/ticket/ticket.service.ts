@@ -196,7 +196,7 @@ export class TicketService {
       timeAgo: getTimeAgo(ticket.createdAt),
     }));
 
-    return formatted
+    return formatted;
   }
 
   async updatePriority(
@@ -221,5 +221,39 @@ export class TicketService {
 
     // 4. Update status
     return this.ticketRepo.priorityUpdate(ticketId, workspaceId, priority);
+  }
+
+  async getTicketComment(
+    userId: string,
+    workspaceId: string,
+    ticketId: string,
+  ) {
+    // 1. Validate workspace membership
+    const member = await this.workspaceRepo.findMember(userId, workspaceId);
+
+    if (!member) {
+      throw new Error("Unauthorized workspace access");
+    }
+
+    // 2. Validate ticket exists inside workspace
+    const ticket = await this.ticketRepo.findById(ticketId);
+
+    if (!ticket || ticket.workspaceId !== workspaceId) {
+      throw new NotFoundError("Ticket not found");
+    }
+
+    const comments = await this.ticketRepo.ticketComment(ticketId);
+
+    const {description, customer_name, ...record} = ticket
+
+    const formattedComments = comments.map(({ ticket, ...comment }) => comment);
+
+    return {
+      ticket: {
+        description,
+        customer_name
+      },
+      comments: formattedComments,
+    };
   }
 }

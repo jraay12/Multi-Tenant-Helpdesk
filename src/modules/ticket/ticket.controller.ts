@@ -187,4 +187,28 @@ export class TicketController {
       next(err);
     }
   };
+
+  getTicketComment = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const userId = req.user!.id;
+      const workspaceId = req.workspaceId!;
+      const { ticketId } = req.params as { ticketId: string };
+
+      const ticketComment = await this.ticketService.getTicketComment(
+        userId,
+        workspaceId,
+        ticketId,
+      );
+
+      return res.status(200).json({
+        data: ticketComment,
+      });
+    } catch (err: any) {
+      next(err);
+    }
+  };
 }

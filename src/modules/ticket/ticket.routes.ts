@@ -20,7 +20,6 @@ const ticketRoute = (ticketController: TicketController): Router => {
     workspaceContext,
     ticketController.recentTicket,
   );
-
   routes.get(
     "/:ticketId",
     mockAuth,
@@ -38,6 +37,12 @@ const ticketRoute = (ticketController: TicketController): Router => {
     mockAuth,
     workspaceContext,
     ticketController.assignTicket,
+  );
+  routes.get(
+    "/:ticketId/comment",
+    mockAuth,
+    workspaceContext,
+    ticketController.getTicketComment,
   );
   routes.post(
     "/:ticketId/comment",
